@@ -151,6 +151,9 @@ extension Pager {
         /// Page index
         @ObservedObject var pagerModel: Page
 
+        /// Layout direction for RTL support
+        @Environment(\.layoutDirection) var layoutDirection
+
         #if !os(tvOS)
         /// DragGesture state to indicate whether the gesture was interrupted
         @GestureState var isGestureFinished = true
@@ -358,7 +361,7 @@ extension Pager.PagerContent {
                 self.pagerModel.draggingVelocity = Double(offsetIncrement) / timeIncrement
             }
 
-            var newOffset = self.draggingOffset + offsetIncrement * (Locale.current.isRightToLeft ? -1 : 1)
+            var newOffset = self.draggingOffset + offsetIncrement * (layoutDirection == .rightToLeft ? -1 : 1)
             if !allowsMultiplePagination {
                 newOffset = self.direction == .forward ? max(newOffset, self.pageRatio * -self.pageDistance) : min(newOffset, self.pageRatio * self.pageDistance)
             }
@@ -421,7 +424,7 @@ extension Pager.PagerContent {
 
     var dragResult: (page: Int, increment: Int) {
         let currentPage = self.currentPage(sensitivity: sensitivity.value)
-        let velocity = -self.draggingVelocity * (Locale.current.isRightToLeft ? -1 : 1)
+        let velocity = -self.draggingVelocity * (layoutDirection == .rightToLeft ? -1 : 1)
 
         guard allowsMultiplePagination else {
             var newPage = currentPage
